@@ -1,6 +1,6 @@
-03b0acf84b1222640e48667d2e304c70 *DESCRIPTION
+553527a372446dbc4b3f3f5012c4710b *DESCRIPTION
 6ca08ad47463d3dd403860126a1ef9e5 *NAMESPACE
-185bc0ed7a3ba6b253468e5f3989fe5e *NEWS.md
+88ba8c3f40f04bda2804573bacbd83fb *NEWS.md
 0d5569cf2f17c51dfdb7dea8360a2563 *R/classes.R
 103065c52d3a8506ecac87e330c560e0 *R/compare_df.R
 c4d3fb4ced354d4a557eea0d05fa9b47 *R/data.R
@@ -13,7 +13,7 @@ c354a33e185c29e2e19af9eb409845ed *R/print.R
 fa987dc21aa0e633ba21279e5d72f477 *R/sysdata.rda
 183e1ff41452a8a75af6755f52b3fe1e *R/update.R
 cc91c9b923ff84ea4b6ff47aa7852906 *R/write_bib.R
-e8c110c3277949a6388423909bd22191 *build/partial.rdb
+35f2a0db12ab0624ab951389bd507ef1 *build/partial.rdb
 c473749604f0173d8f3a996457b6fa97 *data/synopsis.rda
 1a16983625bcc3199b8fe34bb451d5a6 *inst/LuebertPliscoff.bib
 f9fc01dc1015fb146b5843792bcd119e *inst/document.Rmd
@@ -35,4 +35,4 @@ f56d1ad52df716ef2ff98fe21e23d267 *tests/testthat/test-compare_df.R
 543b28bd9a52a2081b07b79d75d8e291 *tests/testthat/test-read_bib.R
 68440a42e0caa9b6430de91862e5a84c *tests/testthat/test-reflist.R
 e9755617193569fc14cc70c073f2698b *tests/testthat/test-update.R
-703e7400d841b88eb252d773cf0496c0 *tests/testthat/test-write_bib.R
+34a27580daf28ab5a58959b88a66e98c *tests/testthat/test-write_bib.R
