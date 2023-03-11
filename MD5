@@ -1,8 +1,8 @@
-237f82951a3be96573b909a3a1cc2e15 *DESCRIPTION
+00aeffad90256f26ef5d472f56ed2da7 *DESCRIPTION
 afd26984828c1e324182f8b932f7c295 *NAMESPACE
 2df00f3c1af2f7b39edadc93ab4df2b8 *NEWS.md
 fe29917bd0ac0b154f5777168d40164b *R/classes.R
-418c2ad002c1ee6710259231dae8aed7 *R/compare_df.R
+bd38880ff4599437948d24cee6f66df8 *R/compare_df.R
 f618b121b385927fc1804a065c509dae *R/data.R
 c4de6b374399097a9b40cf23236cc06f *R/detect_keys.R
 0ab2a0dc346dd1084e8b0c79cb198578 *R/imports.R
@@ -12,7 +12,7 @@ c0e9a05a3677d2c55c381b638b9d4c94 *R/print.R
 d35ee3b2a6e8a10dc5a479c816172cb3 *R/reflist.R
 5ce7698ace86232244b2b4529138d1c8 *R/sysdata.rda
 aa7dc9b13d9bf1073e9fe55edadd55a6 *R/update_data.R
-ab4007aaca97561c5f7304808e720346 *R/write_bib.R
+56cb4b44a5dced0bf81571133f8e0f99 *R/write_bib.R
 ea124a494ad7922985532ad3b308e4d5 *build/partial.rdb
 058dd1f83f3b6333cdcd6db6478ccc22 *data/synopsis.rda
 1a16983625bcc3199b8fe34bb451d5a6 *inst/LuebertPliscoff.bib
