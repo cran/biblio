@@ -6,7 +6,9 @@
 #' Reading BibTeX databases and importing into R as a data frame. All the fields
 #' will be inserted as character values.
 #'
-#' @param x Path to BibTeX file.
+#' @param x A single character value with the path to a BibTeX file.
+#'     Alternativelly it can be a character vector containing the lines of a
+#'     BibTeX library, for instance after using [readLines()].
 #' @param ... Further arguments passed to [readLines()].
 #'
 #' @return
@@ -16,80 +18,77 @@
 #'
 #' @export
 read_bib <- function(x, ...) {
-  x <- readLines(x, ...)
-  # skip empty lines and comments
-  x <- x[nchar(x) > 0 & substring(x, 1, 1) != "%"]
+  if (length(x) == 1) {
+    x <- readLines(x, ...)
+  }
+  # skip empty lines, lines with a single closing curly brace and comments
+  x <- x[!grepl("^\\s*$|^\\s*\\}$|^%", x)]
   # get index for reference
-  x <- cbind(cumsum(substring(x, 1, 1) == "@"), x)
-  # get type, key and id
-  refid <- x[substring(x[, 2], 1, 1) == "@", 1]
-  type <- substring(x[, 2], 2, nchar(x[, 2]) - 1)
-  type <- strsplit(type[substring(x[, 2], 1, 1) == "@"], "{", fixed = TRUE)
-  type <- do.call(rbind, type)
+  x <- data.frame(refid = cumsum(substring(x, 1, 1) == "@"), content = x)
+  # get bibtype, key and id
+  bib_type <- data.frame(
+    refid = x$refid[grepl("^@\\w+", x$content)],
+    bibtype = regmatches(x$content, regexpr("^@\\K\\w+(?=\\{)",
+      x$content,
+      perl = TRUE
+    )),
+    bibtexkey = regmatches(x$content, regexpr("^@\\w+\\{\\K([^,]+|)",
+      x$content,
+      perl = TRUE
+    ))
+  )
   # skip comment Notice
-  type <- cbind(type, refid)
-  type <- type[type[, 1] != "Comment", ]
-  x <- x[x[, 1] %in% type[, 3], ]
+  bib_type <- bib_type[tolower(bib_type$bibtype) != "comment", ]
+  x <- x[x$refid %in% bib_type$refid, ]
   # warn duplicated bibtexkeys
-  if (any(duplicated(type[, 3]))) {
-    warning("Some duplicated values for 'bibtexkey' in 'x'.")
+  d_keys <- with(bib_type, bibtexkey[bibtexkey != "" & duplicated(bibtexkey)])
+  if (length(d_keys)) {
+    warning(paste0(
+      "Following bibtexkeys are duplicated: '",
+      paste0(d_keys, collapse = "', '"), "'."
+    ))
   }
   # getting list of entry fields
-  x <- x[substr(x[, 2], 1, 1) != "@" & substr(x[, 2], 1, 1) != "}", ]
-  x[, 2] <- gsub("\\s+", " ", str_trim(x[, 2]))
-  ## x[,2] <- trimws(x[,2], "both")
-  Content <- strsplit(x[, 2], " = {", fixed = TRUE)
-  Content <- lapply(Content, function(x) {
-    if (length(x) == 1) {
-      x <- c(NA, x)
-    }
-    return(x)
-  })
-  Content <- cbind(x[, 1], do.call(rbind, Content))
-  # Fill NAs forward (Stack Overflow: 7735647)
-  Content[, 2] <- c(NA, na.omit(Content[, 2]))[cumsum(!is.na(Content[
-    ,
-    2
-  ])) + 1]
-  # Skip trailing field symbol
-  idx <- substr(
-    Content[, 3], nchar(Content[, 3]) - 1,
-    nchar(Content[, 3])
-  ) == "},"
-  Content[idx, 3] <- substr(Content[idx, 3], 1, nchar(Content[idx, 3]) - 2)
-  # Resolve problems with last entry without comma symbol
-  # In that case a trailing curly bracket remains in entry
-  open_bk <- str_count(Content[, 3], fixed("{"))
-  close_bk <- str_count(Content[, 3], fixed("}"))
-  end_bk <- substr(Content[, 3], nchar(Content[, 3]), nchar(Content[, 3]))
-  idx <- (close_bk == open_bk + 1) & (end_bk == "}")
-  Content[idx, 3] <- substr(Content[idx, 3], 1, nchar(Content[idx, 3]) - 1)
-  # Aggregate for multiple lines entries
-  Content <- as.data.frame(Content, stringsAsFactors = FALSE)
-  colnames(Content) <- c("refid", "field", "value")
-  Content <- aggregate(value ~ refid + field,
-    data = Content,
+  pattern <- "^\\s+(\\w+)\\s*=\\s*.*"
+  x$field <- sub(pattern, "\\1", x$content)
+  x$field[!grepl(pattern, x$content)] <- ""
+  # clean the content
+  x$content[grepl("^@", x$content)] <- ""
+  x <- x[x$content != "", ]
+  idx <- x$field != ""
+  x$content[idx] <- str_replace(x$content[idx], paste(x$field[idx], "="), "")
+  x$content <- gsub("\\s+", " ", str_trim(x$content))
+  x$content[idx] <- sub("^\\{", "", x$content[idx])
+  idx2 <- c(idx[-1], TRUE)
+  x$content[idx2] <- sub("(},)$|(})$", "", x$content[idx2])
+  # For fields without braces
+  x$content[idx2] <- sub(",$", "", x$content[idx2])
+  # Necessary loop to fill fields
+  for (i in seq_along(x$field[-1])) {
+    if (x$field[i + 1] == "") x$field[i + 1] <- x$field[i]
+  }
+  x <- aggregate(content ~ refid + field,
+    data = x,
     FUN = function(x) paste0(x, collapse = "\n")
   )
   # Output table
-  fields <- unique(Content$field)
+  fields <- unique(x$field)
   new_x <- expand.grid(
-    field = fields, refid = type[, 3],
+    field = fields, refid = bib_type$refid,
     stringsAsFactors = FALSE
   )
-  new_x$value <- with(new_x, Content[match(
+  new_x$value <- with(new_x, x$content[match(
     paste(refid, field, sep = "_"),
-    paste(Content$refid, Content$field, sep = "_")
-  ), 3])
-  new_x <- with(new_x, do.call(rbind, split(value, as.integer(refid))))
+    paste(x$refid, x$field, sep = "_")
+  )])
+  new_x <- with(new_x, do.call(rbind, split(value, refid)))
   colnames(new_x) <- fields
-  colnames(type)[1:2] <- c("bib_type", "bibtexkey")
-  new_x <- cbind(
-    type[, c("bib_type", "bibtexkey")],
-    new_x[match(type[, "refid"], rownames(new_x)), ]
+  new_x <- as.data.frame(new_x)
+  new_x <- data.frame(
+    bib_type[, c("bibtype", "bibtexkey")],
+    new_x[match(bib_type$refid, rownames(new_x)), ]
   )
   # Defining S3 class
-  new_x <- as.data.frame(new_x, stringsAsFactors = FALSE)
   class(new_x) <- c("lib_df", "data.frame")
   return(new_x)
 }

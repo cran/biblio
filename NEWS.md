@@ -1,5 +1,22 @@
-biblio 0.0.7
-============
+
+# biblio 0.0.9
+
+### New Features
+
+- New function `bib2bibentry()` for converting `lib_df` objects into
+  `bibentry` objects.
+- Coerce methods implemented for `lib_df` objects.
+
+### Improvements
+
+- Improved function `read_bib()` using regular expressions and bibtex lines.
+
+### Bug Fixes
+
+- Function `read_bib()` was not able to read libraries with a single reference.
+
+
+# biblio 0.0.7
 
 ### New Features
 
