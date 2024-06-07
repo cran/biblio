@@ -1,4 +1,15 @@
 
+# biblio 0.1.0
+
+### New Freatures
+
+- A new function `doi2bib()` is retrieving references in BibTeX format for
+  DOIs.
+
+### Bug Fixes
+
+- Error importing BibTeX files by `read_bib()`.
+
 # biblio 0.0.9
 
 ### New Features
@@ -14,6 +25,8 @@
 ### Bug Fixes
 
 - Function `read_bib()` was not able to read libraries with a single reference.
+- Issue regarding some fields without braces (see
+  [#34](https://github.com/kamapu/biblio/issues/34)).
 
 
 # biblio 0.0.7
